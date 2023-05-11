@@ -1,10 +1,12 @@
 import re
+import sys
 from grammar import Grammar
 from token_sequence import token_sequence
 from predict import predict_algorithm
 
+# Create Grammar AC
 def create_ac_grammar()->Grammar:
-    G = Grammar()
+    G:Grammar = Grammar()
     G.add_terminal('floatdcl')
     G.add_terminal('intdcl')
     G.add_terminal('print')
@@ -36,6 +38,10 @@ def create_ac_grammar()->Grammar:
     G.add_production('Val',['id']) # 28
     G.add_production('Val',['inum']) # 29
     G.add_production('Val',['fnum']) # 30
+    G.add_terminal('$')
+
+
+    return G
 
 
 regex_table = {
@@ -50,32 +56,85 @@ regex_table = {
     r'^[0-9]+\.[0-9]+$': 'fnum'
 }
 
-def lexical_analyser(filepath) -> str:
-    with open(filepath,'r') as f:
-        token_sequence = []
-        tokens = []
-        for line in f:
+def lexical_analyser(filepath:str) -> list[str]:
+    with open(filepath,'r') as readline:
+        token_sequence:list[str] = []
+        tokens:list = []
+        for line in readline:
             tokens = tokens + line.split(' ')
-        for t in tokens:
-            found = False
+        for token in tokens:
+            found:bool = False
             for regex,category in regex_table.items():
-                if re.match(regex,t):
+                if re.match(regex,token):
                     token_sequence.append(category)
-                    found=True
+                    found = True
             if not found:
-                print('Lexical error: ',t)
+                print('Lexical error: ',token)
                 exit(0)
     token_sequence.append('$')
     return token_sequence
 
 def Prog(ts:token_sequence,p:predict_algorithm)->None:
-    if ts.peek() == p.predict(16):
-        Dcls()
-        Stmts()
+    if ts.peek() in p.predict(16):
+        Dcls(ts, p)
+        Stmts(ts, p)
         ts.match('$')
 
-if __name__ == '__main__':
-    filepath = 'programa.ac'
+def Dcls(ts:token_sequence,p:predict_algorithm)->None:
+    if ts.peek() in p.predict(17):
+        Dcl(ts, p)
+        Dcls(ts, p)
+    elif ts.peek() in p.predict(18):
+        return
+
+def Stmts(ts:token_sequence,p:predict_algorithm)->None:
+    if ts.peek() in p.predict(21):
+        Stmt(ts, p)
+        Stmts(ts, p)
+    elif ts.peek() in p.predict(22):
+        return 
+
+def Stmt(ts:token_sequence,p:predict_algorithm)->None:
+    if ts.peek() in p.predict(23):
+        ts.match('id')
+        ts.match('assign')
+        Val(ts, p)
+        Expr(ts, p)
+    elif ts.peek() in p.predict(24):
+        ts.match('print')
+        ts.match('id')
+
+def Dcl(ts:token_sequence,p:predict_algorithm)->None:
+    if ts.peek() in p.predict(19):
+        ts.match('floatdcl')
+        ts.match('id')
+    elif ts.peek() in p.predict(20):
+        ts.match('intdcl')
+        ts.match('id')
+
+def Val(ts:token_sequence,p:predict_algorithm)->None:
+    if ts.peek() in p.predict(28):
+        ts.match('id')
+    elif ts.peek() in p.predict(29):
+        ts.match('inum')
+    elif ts.peek() in p.predict(30):
+        ts.match('fnum')
+
+def Expr(ts:token_sequence,p:predict_algorithm)->None:
+    if ts.peek() in p.predict(25):
+        ts.match('print')
+        ts.match('id')
+    elif ts.peek() in p.predict(26):
+        ts.match('plus')
+        Val(ts, p)
+        Expr(ts, p)
+    elif ts.peek() in p.predict(27):
+        ts.match('minus')
+        Val(ts, p)
+        Expr(ts, p)
+
+if __name__ in '__main__':
+    filepath:str = 'programa.ac'
     tokens = lexical_analyser(filepath)
     ts = token_sequence(tokens)
     G = create_ac_grammar()

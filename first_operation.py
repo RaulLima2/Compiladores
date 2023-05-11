@@ -8,13 +8,13 @@ class first_algorithm:
         self.__visited = {}
         self.__symbol_derives_empty = {}
 
-    def internal_first(self, alfa: list):
+    def internal_first(self, alfa: list)->set:
         if alfa == []:
             return set()
         X = alfa[0]
         beta = alfa[1:]
         if self.__G.is_terminal(X):
-            return set(X)
+            return set([X])
         ans = set()
         if not self.__visited[X]:
             self.__visited[X] = True
