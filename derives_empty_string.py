@@ -36,4 +36,3 @@ class derives_empty_string_algorithm:
                 p = self.__G.production(occ)
                 self.__count[p]-=1
                 self.__check_for_empty(p)
-
