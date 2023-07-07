@@ -15,7 +15,6 @@ class guided_ll1_parser:
         self.__fill_table()
 
     def __fill_table(self) -> None:
-
         for A in self.__G.nonterminals():
             for a in self.__G.terminals():
                 self.__lltable[(A, a)] = -1
@@ -31,7 +30,7 @@ class guided_ll1_parser:
             stck.append(t)
 
     def parse(self, ts: token_sequence):
-        stck = ['S']
+        stck = ['PROGRAM']
         accept = False
         while not accept:
             top = stck[-1]
@@ -42,6 +41,7 @@ class guided_ll1_parser:
                 stck.pop()
             else:
                 p = self.__lltable[(top, ts.peek())]
+                print(top, ts.peek())
                 if p == -1:
                     print('Syntax error. No rule for (', top, ',', ts.peek(), ')')
                     exit(0)

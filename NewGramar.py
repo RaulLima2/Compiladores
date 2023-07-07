@@ -17,8 +17,9 @@ def create_gramar()->Grammar:
     # add production
     T.add_production('PROGRAM',['DECLS','STMTS','$']) #
     T.add_production('DECLS',['DECLS2','DECLS']) #
+    T.add_production('DECLS',['$'])
+    T.add_production('DECLS',[])
     T.add_production('DECLS2',['DECL']) #
-    #T.add_production('DECLS2',[])
     T.add_production('DECL', ['int','id']) #
     T.add_production('DECL', ['float','id']) #
     T.add_production('STMTS', ['STMTS2', 'STMTS']) #
@@ -40,6 +41,7 @@ def create_gramar()->Grammar:
     T.add_production('T',['F','T2']) #
     T.add_production('T2',['mul','F','T2']) #
     T.add_production('T2',['div','F','T2']) #
+    T.add_production('T2',['$'])
     T.add_production('T2',[]) #
     T.add_production('F',['int_num']) #
     T.add_production('F',['float_num']) #
@@ -59,7 +61,7 @@ def create_produtction_table()->dict:
         r'^int$': 'int',
         r'^float$': 'float',
         r'^print$': 'print',
-        r'^[abcdeghjlmnoqrstuvwxyz]$' : 'id',
+        r'^[a-zA-Z]$' : 'id',
         r'^:$':'assign',
         r'^=$':'equal',
         r'^!=$':'not_equal',
@@ -75,8 +77,8 @@ def create_produtction_table()->dict:
         r'^[0-9]+\.[0-9]+$': 'float_num',
         r'^\($': '(',
         r'^\)$': ')',
-        r'^\$': '',
         r'^if$': 'if',
+        r'^then$': 'then',
         r'^endif$':'endif',
         r'^else$': 'else'
     }
@@ -93,12 +95,14 @@ def lexical_analyser(filepath:str) -> list[str]:
             found:bool = False
             for regex,category in regex_table.items():
                 if re.match(regex,token):
+                    print(regex, category, token)
                     token_sequence.append(category)
                     found = True
             if not found:
                 print('Lexical error: ',token)
                 exit(0)
     token_sequence.append('$')
+    print(token_sequence)
     return token_sequence
 
 def Program(ts:token_sequence, p:predict_algorithm):
@@ -249,7 +253,7 @@ def Comparator(ts, p):
 
 
 if __name__ in '__main__':
-    filename = 'teste.t'
+    filename:str = 'teste.t'
     gra:Grammar = create_gramar()
     tokens = lexical_analyser(filename)
     ts = token_sequence(tokens)
