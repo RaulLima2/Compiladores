@@ -22,11 +22,14 @@ class guided_ll1_parser:
             for p in self.__G.productions_for(A):
                 for a in self.__pred_alg.predict(p):
                     self.__lltable[(A, a)] = p
+        print(self.__lltable)                    
+
 
     def __apply(self, stck: list, p: int) -> None:
         stck.pop()
         rhs = self.__G.rhs(p)
         for t in reversed(rhs):
+            print('Inserting ',t)
             stck.append(t)
 
     def parse(self, ts: token_sequence):
@@ -34,6 +37,7 @@ class guided_ll1_parser:
         accept = False
         while not accept:
             top = stck[-1]
+            print('Top = ',top)
             if self.__G.is_terminal(top):
                 ts.match(top)
                 if top == '$':
@@ -41,7 +45,6 @@ class guided_ll1_parser:
                 stck.pop()
             else:
                 p = self.__lltable[(top, ts.peek())]
-                print(top, ts.peek())
                 if p == -1:
                     print('Syntax error. No rule for (', top, ',', ts.peek(), ')')
                     exit(0)
