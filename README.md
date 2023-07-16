@@ -13,7 +13,7 @@ Maior que
 Diferente
 
 ### Laço de Repetição
-While do
+while do
 endWhile
 
 ### Condição

@@ -4,6 +4,7 @@ class token_sequence:
         self.__idx = 0
 
     def peek(self)->str:
+        print(self.__idx)
         return self.__ts[self.__idx]
     
     def advance(self)->None:
