@@ -2,58 +2,55 @@ import re
 from token_sequence import token_sequence
 from predict import predict_algorithm
 from grammar import Grammar
-from guided_ll1 import guided_ll1_parser
-
+from ll1_check import is_ll1
 
 # Create Grammar T
 def create_gramar()->Grammar:
     T:Grammar = Grammar()
     terminal:list[str] = ['int','float','id','assign', 'print','while','do', 'endWhile', 'if', 'then', 'endif', 'else', 'plus', 'minus', 'mul', 'div', 'int_num', 'float_num', '(',')','equal','not_equal','less_than','greater_than','less_equal','greater_equal','$']
-    non_terminal:list[str] = ['PROGRAM', 'STMTS','STMTS2', 'STMT', 'DECLS', 'DECLS2','DECL', 'PRINT', 'LOOP', 'EXPR', 'ASSIGN', 'IF', 'IF2', 'E2', 'T', 'T2', 'F', 'EXPR_C', 'COMPARATOR']
+    non_terminal:list[str] = ['PROGRAM', 'STMTS','STMT', 'DECLS', 'DECL', 'PRINT', 'LOOP', 'EXPR', 'ASSIGN', 'IF', 'IF2', 'E2', 'T', 'T2', 'F', 'EXPR_C', 'COMPARATOR']
     for item in terminal:
         T.add_terminal(item)
     for item in non_terminal:
         T.add_nonterminal(item)
     # add production
-    T.add_production('PROGRAM',['DECLS','STMT','STMTS','$']) # 47
-    T.add_production('DECLS',['DECLS2','DECLS']) # 48
-    T.add_production('DECLS',['$']) # 49
-    T.add_production('DECLS',[]) # 50
-    T.add_production('DECLS2',['DECL']) # 51
-    T.add_production('DECL', ['int','id']) # 52
-    T.add_production('DECL', ['float','id']) # 53
-    T.add_production('STMTS', ['STMT', 'STMTS']) # 54
-    T.add_production('STMTS', []) # 55
-    T.add_production('STMT', ['ASSIGN']) # 56
-    T.add_production('STMT', ['LOOP']) # 57
-    T.add_production('STMT', ['IF']) # 58
-    T.add_production('STMT', ['PRINT']) # 59
-    T.add_production('ASSIGN', ['id','assign','EXPR']) # 60
-    T.add_production('PRINT',['print','id']) # 61
-    T.add_production('LOOP',['while', 'EXPR_C','do', 'STMT','STMTS','endWhile']) # 62
-    T.add_production('EXPR',['T','E2']) # 63
-    T.add_production('IF',['if','EXPR_C','then', 'STMT','STMTS', 'IF2']) # 64
-    T.add_production('IF2',['endif']) # 65
-    T.add_production('IF2',['else','STMT','STMTS','endif']) # 66
-    T.add_production('E2',['plus','T','E2']) # 67
-    T.add_production('E2',['minus','T','E2']) # 68
-    T.add_production('E2',[]) # 69
-    T.add_production('T',['F','T2']) # 70
-    T.add_production('T2',['mul','F','T2']) # 71
-    T.add_production('T2',['div','F','T2']) # 72
+    T.add_production('PROGRAM',['DECLS', 'STMTS','$']) # 44
+    T.add_production('DECLS',['DECL','DECLS']) # 45
+    T.add_production('DECLS',[]) # 46
+    T.add_production('DECL', ['int','id']) # 49
+    T.add_production('DECL', ['float','id']) # 50
+    T.add_production('STMTS', ['STMT', 'STMTS']) # 51
+    T.add_production('STMTS', []) # 52
+    T.add_production('STMT', ['ASSIGN']) # 53
+    T.add_production('STMT', ['LOOP']) # 54
+    T.add_production('STMT', ['IF']) # 55
+    T.add_production('STMT', ['PRINT']) # 56
+    T.add_production('ASSIGN', ['id','assign','EXPR']) # 57
+    T.add_production('PRINT',['print','id']) # 58
+    T.add_production('LOOP',['while', 'EXPR_C','do', 'STMT','STMTS','endWhile']) # 59
+    T.add_production('EXPR',['T','E2']) # 60
+    T.add_production('IF',['if','EXPR_C','then', 'STMT','STMTS', 'IF2']) # 61
+    T.add_production('IF2',['endif']) # 62
+    T.add_production('IF2',['else','STMT','STMTS','endif']) # 63
+    T.add_production('E2',['plus','T','E2']) # 64
+    T.add_production('E2',['minus','T','E2']) # 65
+    T.add_production('E2',[]) # 66
+    T.add_production('T',['F','T2']) # 67
+    T.add_production('T2',['mul','F','T2']) # 68
+    T.add_production('T2',['div','F','T2']) # 69
     # T.add_production('T2',['$'])
-    T.add_production('T2',[]) # 73
-    T.add_production('F',['int_num']) # 74
-    T.add_production('F',['float_num']) # 75
-    T.add_production('F',['id']) # 76
-    T.add_production('F',['(','EXPR',')'])  # 77
-    T.add_production('EXPR_C',['EXPR','COMPARATOR','EXPR']) # 78
-    T.add_production('COMPARATOR',['equal']) # 79
-    T.add_production('COMPARATOR',['not_equal']) # 80
-    T.add_production('COMPARATOR',['less_than']) # 81
-    T.add_production('COMPARATOR',['greater_than']) # 82
-    T.add_production('COMPARATOR',['less_equal']) # 83
-    T.add_production('COMPARATOR',['greater_equal']) # 84
+    T.add_production('T2',[]) # 70
+    T.add_production('F',['int_num']) # 71
+    T.add_production('F',['float_num']) # 72
+    T.add_production('F',['id']) # 73
+    T.add_production('F',['(','EXPR',')'])  # 74
+    T.add_production('EXPR_C',['EXPR','COMPARATOR','EXPR']) # 75
+    T.add_production('COMPARATOR',['equal']) # 76
+    T.add_production('COMPARATOR',['not_equal']) # 77
+    T.add_production('COMPARATOR',['less_than']) # 78
+    T.add_production('COMPARATOR',['greater_than']) # 78
+    T.add_production('COMPARATOR',['less_equal']) # 79
+    T.add_production('COMPARATOR',['greater_equal']) # 80
     return T
 
 def create_produtction_table()->dict:
@@ -108,9 +105,9 @@ def lexical_analyser(filepath:str) -> list[str]:
     return token_sequence
 
 def Program(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(46):
+    if ts.peek() in p.predict(44):
         Decls(ts, p)
-        Stmt(ts, p)
+        #Stmt(ts, p)
         Stmts(ts, p)
         ts.match('$')
     else:
@@ -118,29 +115,22 @@ def Program(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def Decls(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(47):
-        Decls2(ts, p)
+    if ts.peek() in p.predict(45):
+        Decl(ts, p)
         Decls(ts, p)
-    elif ts.peek() in p.predict(48):
-        ts.match('$')
-    elif ts.peek() in p.predict(49):
+    #elif ts.peek() in p.predict(48):
+        #ts.match('$')
+    elif ts.peek() in p.predict(46):
         return
     else:
         print('Lexical error: ',ts.peek())
         exit(0)
 
-def Decls2(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(50):
-        Decl(ts, p)
-    else:
-        print('Lexical error: ',ts.peek())
-        exit(0)
-
 def Decl(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(51):
+    if ts.peek() in p.predict(47):
         ts.match('int')
         ts.match('id')
-    elif ts.peek() in p.predict(52):
+    elif ts.peek() in p.predict(48):
         ts.match('float')
         ts.match('id')
     else:
@@ -148,23 +138,23 @@ def Decl(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def Stmts(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(53):
+    if ts.peek() in p.predict(49):
         Stmt(ts, p)
         Stmts(ts, p)
-    elif ts.peek() in p.predict(54):
+    elif ts.peek() in p.predict(50):
         return
     else:
         print('Lexical error: ',ts.peek())
         exit(0)
 
 def Stmt(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(55):
+    if ts.peek() in p.predict(51):
         Assign(ts, p)
-    elif ts.peek() in p.predict(56):
+    elif ts.peek() in p.predict(52):
         Loop(ts, p)
-    elif ts.peek() in p.predict(57):
+    elif ts.peek() in p.predict(53):
         If(ts, p)
-    elif ts.peek() in p.predict(58):
+    elif ts.peek() in p.predict(54):
         Print(ts, p)
     else:
         print('Lexical error: ',ts.peek())
@@ -172,7 +162,7 @@ def Stmt(ts:token_sequence, p:predict_algorithm):
         
     
 def Assign(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(59):
+    if ts.peek() in p.predict(55):
         ts.match('id')
         ts.match('assign')
         Expr(ts, p)
@@ -181,7 +171,7 @@ def Assign(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def Print(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(60):
+    if ts.peek() in p.predict(56):
         ts.match('print')
         ts.match('id')
     else:
@@ -189,7 +179,7 @@ def Print(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def Loop(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(61):
+    if ts.peek() in p.predict(57):
         ts.match('while')
         Expr_c(ts, p)
         ts.match('do')
@@ -201,7 +191,7 @@ def Loop(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def Expr(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(62):
+    if ts.peek() in p.predict(58):
         T(ts, p)
         E2(ts, p)
     else:
@@ -209,7 +199,7 @@ def Expr(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def If(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(63):
+    if ts.peek() in p.predict(59):
         ts.match('if')
         Expr_c(ts, p)
         ts.match('then')
@@ -221,9 +211,9 @@ def If(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def If2(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(64):
+    if ts.peek() in p.predict(60):
         ts.match('endif')
-    elif ts.peek() in p.predict(65):
+    elif ts.peek() in p.predict(61):
         ts.match('else')
         Stmt(ts, p)
         Stmts(ts, p)
@@ -233,22 +223,22 @@ def If2(ts:token_sequence, p:predict_algorithm):
         exit(0)
         
 def E2(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(66):
+    if ts.peek() in p.predict(62):
         ts.match('plus')
         T(ts, p)
         E2(ts, p)
-    elif ts.peek() in p.predict(67):
+    elif ts.peek() in p.predict(63):
         ts.match('minus')
         T(ts, p)
         E2(ts, p)
-    elif ts.peek() in p.predict(68):
+    elif ts.peek() in p.predict(64):
         return
     else:
         print('Lexical error: ',ts.peek())
         exit(0)
 
 def T(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(69):
+    if ts.peek() in p.predict(65):
         F(ts, p)
         T2(ts, p)
     else:
@@ -256,28 +246,28 @@ def T(ts:token_sequence, p:predict_algorithm):
         exit(0) 
 
 def T2(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(70):
+    if ts.peek() in p.predict(66):
         ts.match('mul')
         F(ts, p)
         T2(ts, p)
-    elif ts.peek() in p.predict(71):
+    elif ts.peek() in p.predict(67):
         ts.match('div')
         F(ts, p)
         T2(ts, p)
-    elif ts.peek() in p.predict(72):
+    elif ts.peek() in p.predict(68):
         return
     else:
         print('Lexical error: ',ts.peek())
         exit(0)
 
 def F(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(73):
+    if ts.peek() in p.predict(69):
         ts.match('int_num')
-    elif ts.peek() in p.predict(74):
+    elif ts.peek() in p.predict(70):
         ts.match('float_num')
-    elif ts.peek() in p.predict(75):
+    elif ts.peek() in p.predict(71):
         ts.match('id')
-    elif ts.peek() in p.predict(76):
+    elif ts.peek() in p.predict(72):
         ts.match('(')
         Expr(ts, p)
         ts.match(')')
@@ -286,7 +276,7 @@ def F(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def Expr_c(ts:token_sequence, p:predict_algorithm):
-    if  ts.peek() in p.predict(77):
+    if  ts.peek() in p.predict(73):
         Expr(ts, p)
         Comparator(ts, p)
         Expr(ts, p)
@@ -295,17 +285,17 @@ def Expr_c(ts:token_sequence, p:predict_algorithm):
         exit(0)
 
 def Comparator(ts:token_sequence, p:predict_algorithm):
-    if ts.peek() in p.predict(78):
+    if ts.peek() in p.predict(74):
         ts.match('equal')
-    elif ts.peek() in p.predict(79):
+    elif ts.peek() in p.predict(75):
         ts.match('not_equal')
-    elif ts.peek() in p.predict(80):
+    elif ts.peek() in p.predict(76):
         ts.match('less_than')
-    elif ts.peek() in p.predict(81):
+    elif ts.peek() in p.predict(77):
         ts.match('greather_than')
-    elif ts.peek() in p.predict(82):
+    elif ts.peek() in p.predict(78):
         ts.match('less_equal')
-    elif ts.peek() in p.predict(83):
+    elif ts.peek() in p.predict(79):
         ts.match('greater_equal')
     else:
         print('Lexical error: ',ts.peek())
@@ -317,6 +307,5 @@ if __name__ in '__main__':
     tokens = lexical_analyser(filename)
     p_algorithm = predict_algorithm(gra)
     ts = token_sequence(tokens)
+    print(is_ll1(gra, p_algorithm))
     Program(ts, p_algorithm)
-    #L = guided_ll1_parser(gra)
-    #L.parse(ts)
