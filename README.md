@@ -1,21 +1,34 @@
 # Compiladores
 Linguagem T
 
+## Cronograma
+- [ X ] Gramatica
+- [ X ] Verificação
+- [ X ] Analisador Léxico
+- [] 
+
 ### Declaração de Variaveis
-int 
-float
+- Inteiro ```int```
+- Real ```float```
 
 ### Expressões Aritmetcas
-Menor
-Igual
-Menor que
-Maior que
-Diferente
+- Menor ```>```
+- Igual ```=```
+- Menor que ```<=```
+- Maior que ```>=```
+- Diferente ```!=```
 
 ### Laço de Repetição
-while do
+
+```
+while [expr] do
+    [stmts]
 endWhile
+```
 
 ### Condição
-if then
+```
+if [expr] then
+    [stmts]
 endif
+```
