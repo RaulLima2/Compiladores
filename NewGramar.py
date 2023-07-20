@@ -5,9 +5,10 @@ from grammar import Grammar
 from ll1_check import is_ll1
 
 # Create Grammar T
+# adcionar a quebra de linha
 def create_gramar()->Grammar:
     T:Grammar = Grammar()
-    terminal:list[str] = ['int','float','id','assign', 'print','while','do', 'endWhile', 'if', 'then', 'endif', 'else', 'plus', 'minus', 'mul', 'div', 'int_num', 'float_num', '(',')','equal','not_equal','less_than','greater_than','less_equal','greater_equal','$']
+    terminal:list[str] = ['int','float','id','assign', 'print','while','do', 'end_while', 'if', 'then', 'endif', 'else', 'plus', 'minus', 'mul', 'div', 'int_num', 'float_num', '(',')','equal','not_equal','less_than','greater_than','less_equal','greater_equal','$']
     non_terminal:list[str] = ['PROGRAM', 'STMTS','STMT', 'DECLS', 'DECL', 'PRINT', 'LOOP', 'EXPR', 'ASSIGN', 'IF', 'IF2', 'E2', 'T', 'T2', 'F', 'EXPR_C', 'COMPARATOR']
     for item in terminal:
         T.add_terminal(item)
@@ -27,7 +28,7 @@ def create_gramar()->Grammar:
     T.add_production('STMT', ['PRINT']) # 56
     T.add_production('ASSIGN', ['id','assign','EXPR']) # 57
     T.add_production('PRINT',['print','id']) # 58
-    T.add_production('LOOP',['while', 'EXPR_C','do', 'STMT','STMTS','endWhile']) # 59
+    T.add_production('LOOP',['while', 'EXPR_C','do', 'STMT','STMTS','end_while']) # 59
     T.add_production('EXPR',['T','E2']) # 60
     T.add_production('IF',['if','EXPR_C','then', 'STMT','STMTS', 'IF2']) # 61
     T.add_production('IF2',['endif']) # 62
@@ -68,8 +69,8 @@ def create_produtction_table()->dict:
         r'^>=$':'greater_equal',
         r'^\+$': 'plus',
         r'^\-$': 'minus',
-        r'^\*$': 'mul',
-        r'^\\$': 'div',
+        r'^\*$': 'mul', 
+        r'^\/$': 'div',
         r'^[0-9]+$': 'int_num',
         r'^[0-9]+\.[0-9]+$': 'float_num',
         r'^\($': '(',
@@ -80,7 +81,8 @@ def create_produtction_table()->dict:
         r'^else$': 'else',
         r'^while$':'while',
         r'^do$':'do',
-        r'^endWhile$': 'endWhile'
+        r'^end_while$': 'end_while'
+        #r'\n': 'break_line'
     }
     return regex_table
 
@@ -89,16 +91,23 @@ def lexical_analyser(filepath:str) -> list[str]:
     with open(filepath,'r') as readline:
         token_sequence:list[str] = []
         tokens:list = []
+        n_line:list = []
         for line in readline:
-            tokens = tokens + line.split(' ')
+            if '' in line.split(' '):
+                n_line = [item for item in line.split(' ') if item != '']
+                tokens = tokens + n_line
+            else:
+                n_line = line.split(' ')
+                tokens = tokens + n_line
         for token in tokens:
             found:bool = False
             for regex,category in regex_table.items():
                 if re.match(regex,token):
                     token_sequence.append(category)
                     found = True
+                    break
             if not found:
-                print('Lexical error: ',token)
+                print('Lexical Error: ',token)
                 exit(0)
     token_sequence.append('$')
     print(token_sequence)
@@ -111,7 +120,7 @@ def Program(ts:token_sequence, p:predict_algorithm):
         Stmts(ts, p)
         ts.match('$')
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def Decls(ts:token_sequence, p:predict_algorithm):
@@ -123,7 +132,7 @@ def Decls(ts:token_sequence, p:predict_algorithm):
     elif ts.peek() in p.predict(46):
         return
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def Decl(ts:token_sequence, p:predict_algorithm):
@@ -134,7 +143,7 @@ def Decl(ts:token_sequence, p:predict_algorithm):
         ts.match('float')
         ts.match('id')
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def Stmts(ts:token_sequence, p:predict_algorithm):
@@ -144,7 +153,7 @@ def Stmts(ts:token_sequence, p:predict_algorithm):
     elif ts.peek() in p.predict(50):
         return
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def Stmt(ts:token_sequence, p:predict_algorithm):
@@ -157,7 +166,7 @@ def Stmt(ts:token_sequence, p:predict_algorithm):
     elif ts.peek() in p.predict(54):
         Print(ts, p)
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
         
     
@@ -167,7 +176,7 @@ def Assign(ts:token_sequence, p:predict_algorithm):
         ts.match('assign')
         Expr(ts, p)
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def Print(ts:token_sequence, p:predict_algorithm):
@@ -175,7 +184,7 @@ def Print(ts:token_sequence, p:predict_algorithm):
         ts.match('print')
         ts.match('id')
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def Loop(ts:token_sequence, p:predict_algorithm):
@@ -185,9 +194,9 @@ def Loop(ts:token_sequence, p:predict_algorithm):
         ts.match('do')
         Stmt(ts, p)
         Stmts(ts, p)
-        ts.match('endWhile')
+        ts.match('end_while')
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def Expr(ts:token_sequence, p:predict_algorithm):
@@ -195,7 +204,7 @@ def Expr(ts:token_sequence, p:predict_algorithm):
         T(ts, p)
         E2(ts, p)
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def If(ts:token_sequence, p:predict_algorithm):
@@ -207,7 +216,7 @@ def If(ts:token_sequence, p:predict_algorithm):
         Stmts(ts, p)
         If2(ts, p)
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: Decision',ts.peek())
         exit(0)
 
 def If2(ts:token_sequence, p:predict_algorithm):
@@ -219,7 +228,7 @@ def If2(ts:token_sequence, p:predict_algorithm):
         Stmts(ts, p)
         ts.match('endif')
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
         
 def E2(ts:token_sequence, p:predict_algorithm):
@@ -234,7 +243,7 @@ def E2(ts:token_sequence, p:predict_algorithm):
     elif ts.peek() in p.predict(64):
         return
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def T(ts:token_sequence, p:predict_algorithm):
@@ -242,7 +251,7 @@ def T(ts:token_sequence, p:predict_algorithm):
         F(ts, p)
         T2(ts, p)
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0) 
 
 def T2(ts:token_sequence, p:predict_algorithm):
@@ -257,7 +266,7 @@ def T2(ts:token_sequence, p:predict_algorithm):
     elif ts.peek() in p.predict(68):
         return
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def F(ts:token_sequence, p:predict_algorithm):
@@ -272,16 +281,16 @@ def F(ts:token_sequence, p:predict_algorithm):
         Expr(ts, p)
         ts.match(')')
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: ',ts.peek())
         exit(0)
 
 def Expr_c(ts:token_sequence, p:predict_algorithm):
     if  ts.peek() in p.predict(73):
         Expr(ts, p)
         Comparator(ts, p)
-        Expr(ts, p)
+        Expr(ts, p)                
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: Expression Bool',ts.peek())
         exit(0)
 
 def Comparator(ts:token_sequence, p:predict_algorithm):
@@ -292,13 +301,13 @@ def Comparator(ts:token_sequence, p:predict_algorithm):
     elif ts.peek() in p.predict(76):
         ts.match('less_than')
     elif ts.peek() in p.predict(77):
-        ts.match('greather_than')
+        ts.match('greater_than')
     elif ts.peek() in p.predict(78):
         ts.match('less_equal')
     elif ts.peek() in p.predict(79):
         ts.match('greater_equal')
     else:
-        print('Lexical error: ',ts.peek())
+        print('Syntax Error: Operation Arithimetic',ts.peek())
         exit(0)
 
 if __name__ in '__main__':
@@ -308,4 +317,5 @@ if __name__ in '__main__':
     p_algorithm = predict_algorithm(gra)
     ts = token_sequence(tokens)
     print(is_ll1(gra, p_algorithm))
+    print('ok')
     Program(ts, p_algorithm)
