@@ -1,0 +1,1 @@
+from language_t.syntax_analyser.syntax_analyser import Program

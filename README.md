@@ -2,21 +2,32 @@
 Linguagem T
 
 ## Cronograma
-- [ X ] Gramatica
-- [ X ] Verificação
-- [ X ] Analisador Léxico
-- [] 
+- [ x ] Gramatica
+- [ x ] Verificação
+- [ x ] Analisador Léxico
+- [ x ] Analisador Sematico
+- [ ] Interpretador
 
 ### Declaração de Variaveis
 - Inteiro ```int```
 - Real ```float```
 
-### Expressões Aritmetcas
+### Operadores Aritmeticos
+- Mais ```+```
+- Menos ```-```
+- Multiplicação ```*```
+- Divisão ```/``
+
+### Operadores Lógicos
 - Menor ```>```
+- Menor ```<```
 - Igual ```=```
 - Menor que ```<=```
 - Maior que ```>=```
 - Diferente ```!=```
+
+### Expressão Lógica
+- ```( EXPR ARITMETIC ) OP LOGIC ( EXPR ARITMETIC )```
 
 ### Laço de Repetição
 

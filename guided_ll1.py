@@ -1,6 +1,6 @@
-from grammar import Grammar
-from predict import predict_algorithm
-from token_sequence import token_sequence
+from language_t.grammar.grammar import Grammar
+from language_t.predict import predict_algorithm
+from language_t.token_sequence.token_sequence import token_sequence
 from ll1_check import is_ll1
 
 

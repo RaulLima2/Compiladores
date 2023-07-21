@@ -1,0 +1,30 @@
+def create_produtction_table()->dict:
+    regex_table:dict = {
+        r'^int$': 'int',
+        r'^float$': 'float',
+        r'^print$': 'print',
+        r'^[a-zA-Z]$' : 'id',
+        r'^:$':'assign',
+        r'^=$':'equal',
+        r'^!=$':'not_equal',
+        r'^>$':'greater_than',
+        r'^<$':'less_than',
+        r'^<=$':'less_equal',
+        r'^>=$':'greater_equal',
+        r'^\+$': 'plus',
+        r'^\-$': 'minus',
+        r'^\*$': 'mul',
+        r'^\\$': 'div',
+        r'^[0-9]+$': 'int_num',
+        r'^[0-9]+\.[0-9]+$': 'float_num',
+        r'^\($': '(',
+        r'^\)$': ')',
+        r'^if$': 'if',
+        r'^then$': 'then',
+        r'^endif$':'endif',
+        r'^else$': 'else',
+        r'^while$':'while',
+        r'^do$':'do',
+        r'^end_while$': 'end_while'
+    }
+    return regex_table
