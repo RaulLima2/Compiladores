@@ -26,5 +26,4 @@ def lexical_analyser(filepath:str, tbl_symbol:dict) -> list[str]:
                 print('Lexical Error: ',token)
                 exit(0)
     token_sequence.append('$')
-    print(token_sequence)
     return token_sequence

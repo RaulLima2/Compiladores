@@ -1,4 +1,4 @@
-from language_t.token_sequence import token_sequence
+from language_t.token_sequence.token_sequence import token_sequence
 from language_t.predict import predict_algorithm
 
 def Program(ts:token_sequence, p:predict_algorithm):

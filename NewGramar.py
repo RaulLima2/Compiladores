@@ -5,8 +5,8 @@ from language_t.token_sequence.token_sequence import token_sequence
 from language_t.predict import predict_algorithm
 from language_t.lexical_analyser import lexical_analyser
 from language_t.syntax_analyser.syntax_analyser import Program
-from ll1_check import is_ll1
-from guided_ll1 import guided_ll1_parser
+from language_t.guided_ll1.ll1_check import is_ll1
+from language_t.guided_ll1.guided_ll1 import guided_ll1_parser
 
  # Create Grammar T
 def create_gramar()->grammar.Grammar:
@@ -58,14 +58,14 @@ def create_gramar()->grammar.Grammar:
     return T
 
 if __name__ in '__main__':
-    filename:str = 'teste.t'
+    filename:str = 'data/teste.t'
     tbl_symbol = table_symbol.table_symbol(None, None)
     gra:grammar.Grammar = create_gramar()
     p_algorithm = predict_algorithm(gra)
-    print(is_ll1(gra, p_algorithm))
+    # print(is_ll1(gra, p_algorithm))
     tokens = lexical_analyser.lexical_analyser(filename, tbl_symbol)
     ts = token_sequence(tokens)
-    tbl_symbol.p()
-    p = guided_ll1_parser(gra)
-    p.parse(tokens)
+    # tbl_symbol.p()
+    # p = guided_ll1_parser(gra)
+    # p.parse(ts)
     Program(ts, p_algorithm)
